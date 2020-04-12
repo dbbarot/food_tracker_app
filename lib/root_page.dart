@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_tracker_app/login_signup_page.dart';
 import 'package:food_tracker_app/authentication.dart';
-import 'package:food_tracker_app/home_page.dart';
+import 'package:food_tracker_app/addItemList.dart';
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -77,7 +77,7 @@ class _RootPageState extends State<RootPage> {
         break;
       case AuthStatus.LOGGED_IN:
         if (_userId.length > 0 && _userId != null) {
-          return new HomePage(
+          return new AddItemList(
             userId: _userId,
             auth: widget.auth,
             logoutCallback: logoutCallback,
