@@ -43,7 +43,8 @@ class DbHelper {
   void _createDb(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $addItemTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colProductName TEXT, '
-        ' $colQuantity TEXT, $colDescription TEXT, $colExpirationDate TEXT)');
+        ' $colQuantity TEXT,$colDescription TEXT, '
+        ' $colExpirationDate TEXT)');
   }
 
   // Fetch Operation: Get all addItem objects from database
@@ -55,6 +56,26 @@ class DbHelper {
     return result;
   }
 
+  // Retrieves specific is id.
+  Future<List> getItem(int id) async {
+    Database db = await this.database;
+		var result = await db.rawQuery('SELECT * FROM $addItemTable WHERE $colId= ' + id.toString() + "");
+   // var result = await db.query(addItemTable, orderBy: '$colExpirationDate ASC');
+    return result;
+  }
+
+  //
+  Future<List> getItemWithExpirationDate(String payload) async {
+    List<String> p = payload.split('|');
+    if(p.length == 2) {
+      Database db = await this.database;
+      var result = await db.rawQuery(
+          'SELECT * FROM $addItemTable WHERE $colId = ' + p[0] + 'AND $colExpirationDate=' + p[1] + "");
+      //   var result = await db.query(addItemTable, orderBy: '$colExpirationDate ASC');
+      return result;
+    }else
+      return null;
+  }
   // Insert Operation: Insert a addItem object to database
   Future<int> insertAddItem(AddItem addItem) async {
     Database db = await this.database;
