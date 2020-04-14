@@ -4,7 +4,7 @@ class Val {
   // Validations
 
   static String ValidateTitle(String val) {
-    return (val != null && val != "") ? null : "Title cannot be empty";
+    return (val != null && val != "") ? null : "This Field cannot be empty";
   }
 
   static String GetExpiryStr(String expires) {

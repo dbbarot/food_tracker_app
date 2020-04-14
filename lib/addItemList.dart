@@ -4,6 +4,7 @@ import 'package:food_tracker_app/addItem.dart';
 import 'package:food_tracker_app/addItemDetail.dart';
 import 'package:food_tracker_app/db_helper.dart';
 import 'package:food_tracker_app/expiredProducts.dart';
+import 'package:food_tracker_app/utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 
@@ -23,6 +24,12 @@ class _AddItemListState extends State<AddItemList> {
   DbHelper dbHelper = DbHelper();
   List<AddItem> addItemList;
   int count = 0;
+  DateTime cDate;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   signOut() async {
     try {
@@ -56,41 +63,16 @@ class _AddItemListState extends State<AddItemList> {
         ],
       ),
       body: getAddItemListResult(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            FloatingActionButton.extended(
-              onPressed: () {
-                debugPrint('FAB clicked');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ExpiredProductList()),
-                );
-              },
-              heroTag: 'Expired',
-              icon: Icon(Icons.delete_sweep),
-              label: Text('Expired Products'),
-              foregroundColor: Colors.black,
-              tooltip: 'Expired Items',
-              //label: Text('Add Item'),
-            ),
-            FloatingActionButton.extended(
-              onPressed: () {
-                debugPrint('FAB clicked');
-                navigateToDetail(AddItem('', '', ''), 'Add Item');
-              },
-              heroTag: 'Add',
-              icon: Icon(Icons.add),
-              label: Text('Add Item'),
-              foregroundColor: Colors.black,
-              tooltip: 'Add Item',
-              //label: Text('Add Item'),
-            ),
-          ],
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          debugPrint('FAB clicked');
+          navigateToDetail(AddItem('', '', ''), 'Add Item');
+        },
+        icon: Icon(Icons.add),
+        label: Text('Add Item'),
+        foregroundColor: Colors.black,
+        tooltip: 'Add Item',
+        //label: Text('Add Item'),
       ),
     );
   }
@@ -99,19 +81,30 @@ class _AddItemListState extends State<AddItemList> {
     return ListView.builder(
       itemCount: count,
       itemBuilder: (BuildContext context, int position) {
+        String dd = Val.GetExpiryStr(this.addItemList[position].expirationDate);
+        String dl = (dd != "1") ? " days left" : " day left";
         return Card(
           color: Colors.orange,
           elevation: 2.0,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Colors.black,
+              backgroundColor: (Val.GetExpiryStr(
+                          this.addItemList[position].expirationDate) !=
+                      "0")
+                  ? Colors.blue
+                  : Colors.red,
               child: Text(getQuantity(this.addItemList[position].quantity),
                   style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             title: Text(this.addItemList[position].productName,
                 style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(
-                'Expires on: ' + this.addItemList[position].expirationDate),
+            subtitle:
+            Text(
+                Val.GetExpiryStr(this.addItemList[position].expirationDate) +
+                    dl +
+                    '\nExp:' +
+                    DateUtils.convertToDateFull(
+                        this.addItemList[position].expirationDate)),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -174,6 +167,19 @@ class _AddItemListState extends State<AddItemList> {
           this.count = addItemList.length;
         });
       });
+    });
+  }
+
+  void _checkDate() {
+    const secs = const Duration(seconds: 10);
+    new Timer.periodic(secs, (Timer t) {
+      DateTime nw = DateTime.now();
+      if (cDate.day != nw.day ||
+          cDate.month != nw.month ||
+          cDate.year != nw.year) {
+        updateListResult();
+        cDate = DateTime.now();
+      }
     });
   }
 }

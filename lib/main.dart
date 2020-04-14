@@ -14,8 +14,10 @@ class MyApp extends StatelessWidget {
         title: 'Food Tracker App',
         debugShowCheckedModeBanner: false,
         theme: new ThemeData(
+          backgroundColor: Colors.black,
           primarySwatch: Colors.green,
         ),
-        home: new RootPage(auth: new Auth()));
+        home: new RootPage(auth: new Auth()
+        ));
   }
 }

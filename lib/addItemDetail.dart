@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:food_tracker_app/addItem.dart';
@@ -26,9 +27,19 @@ class _AddItemDetailState extends State<AddItemDetail> {
   TextEditingController productNameController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  TextEditingController expirationDateController = TextEditingController();
+  MaskedTextController expirationDateController =
+      MaskedTextController(mask: '2000-00-00');
+  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
 
   _AddItemDetailState(this.addItem, this.appBarTitle);
+
+  @override
+  void initState() {
+    super.initState();
+    _initCtrls();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,82 +70,114 @@ class _AddItemDetailState extends State<AddItemDetail> {
                 goToLastScreen();
               }),
         ),
-        body: Padding(
-          padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-          child: ListView(
-            children: <Widget>[
-              // First Field
-              Padding(
-                padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                child: TextField(
+        body: Form(
+          key: _formKey,
+          autovalidate: true,
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: ListView(
+              padding: const EdgeInsets.all(20.0),
+              children: <Widget>[
+                // First Field
+                SizedBox(height: 8.0, width: 16.0,),
+                TextFormField(
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter(
+                        RegExp("[a-zA-Z0-9 ]"))
+                  ],
                   controller: productNameController,
                   style: textStyle,
-                  onChanged: (value) {
+                  validator: (val) => Val.ValidateTitle(val),
+                  onSaved: (value) {
                     debugPrint('Something changed in Title Text Field');
                     updateProductName();
                   },
                   decoration: InputDecoration(
+                    icon: const Icon(Icons.fastfood),
+                      hintText: 'Enter the product name',
                       labelText: 'Product',
                       labelStyle: textStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0))),
                 ),
-              ),
-              //Second Field
-              Padding(
-                padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                child: TextField(
+                //Second Field
+                SizedBox(height: 8.0, width: 16.0,),
+                TextFormField(
                   controller: quantityController,
                   style: textStyle,
-                  onChanged: (value) {
+                  validator: (val) => Val.ValidateTitle(val),
+                  onSaved: (value) {
                     debugPrint('Something changed in Title Text Field');
                     updateQuantity();
                   },
                   decoration: InputDecoration(
+                      icon: const Icon(Icons.confirmation_number),
+                      hintText: 'Enter the Quantity',
                       labelText: 'Quantity',
                       labelStyle: textStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0))),
                 ),
-              ),
-              // Third Field
-              Padding(
-                padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                child: TextField(
+                // Third Field
+                SizedBox(height: 8.0, width: 16.0,),
+                TextFormField(
                   controller: descriptionController,
                   style: textStyle,
-                  onChanged: (value) {
+                  validator: (val) => Val.ValidateTitle(val),
+                  onSaved: (value) {
                     debugPrint('Something changed in Title Text Field');
                     updateDescription();
                   },
                   decoration: InputDecoration(
+                      icon: const Icon(Icons.description),
+                      hintText: 'Enter description ',
                       labelText: 'Description',
                       labelStyle: textStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0))),
                 ),
-              ),
-              // Fpourth Field
-              Padding(
-                padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                child: TextField(
-                  controller: expirationDateController,
-                  style: textStyle,
-                  onChanged: (value) {
-                    debugPrint('Something changed in Title Text Field');
-                    updateExpirationDate();
-                  },
-                  decoration: InputDecoration(
-                      labelText: 'Expired Date',
-                      labelStyle: textStyle,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0))),
+                // Fpourth Field
+                SizedBox(height: 8.0, width: 16.0,),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextFormField(
+                        controller: expirationDateController,
+                        style: textStyle,
+                        onSaved: (value) {
+                          debugPrint('Something changed in Title Text Field');
+                          updateExpirationDate();
+                        },
+                        decoration: InputDecoration(
+                          icon: const Icon(Icons.calendar_today),
+                          hintText: 'Enter Expiration Date',
+                          labelText: 'Expired Date',
+                          labelStyle: textStyle,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (val) => DateUtils.isValidDate(val)
+                            ? null
+                            : 'Not a valid future date',
+                      ),
+                    ),
+                    IconButton(
+                      icon: new Icon(Icons.more_horiz),
+                      tooltip: 'Choose date',
+                      onPressed: (() {
+                        _chooseDate(context, expirationDateController.text);
+                      }),
+                    )
+                  ],
                 ),
-              ),
-              // Fifth Field
-              Padding(
-                padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                child: Row(
+                Row(children: <Widget>[
+                  Expanded(child: Text(' ')),
+                ]),
+                // Fifth Field
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Expanded(
                       child: FloatingActionButton.extended(
@@ -151,7 +194,12 @@ class _AddItemDetailState extends State<AddItemDetail> {
                         onPressed: () {
                           setState(() {
                             debugPrint('Update Button Clicked');
-                            _update();
+                            if(this._formKey.currentState.validate()) {
+                              this._formKey.currentState.save();
+                              _update();
+                            }else{
+                              _showAlertDialog('Status', 'Some data is invalid. Please correct.');
+                            }
                           });
                         },
                       ),
@@ -174,15 +222,20 @@ class _AddItemDetailState extends State<AddItemDetail> {
                         onPressed: () {
                           setState(() {
                             debugPrint('Delete Button Clicked');
-                            _delete();
+                            if(this._formKey.currentState.validate()) {
+                              this._formKey.currentState.save();
+                              _delete();
+                            }else{
+                              _showAlertDialog('Status', 'Some data is invalid. Please correct.');
+                            }
                           });
                         },
                       ),
                     )
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -269,12 +322,37 @@ class _AddItemDetailState extends State<AddItemDetail> {
 
     DatePicker.showDatePicker(context, showTitleActions: true,
         onConfirm: (date) {
+      print('At here Date');
       setState(() {
         DateTime dt = date;
         String r = DateUtils.ftDateAsStr(dt);
-
+        print(expirationDateController.text.toString());
         expirationDateController.text = r;
       });
     }, currentTime: initialDate);
   }
+
+  void _submitForm() {
+
+    final FormState form = _formKey.currentState;
+
+    if (!form.validate()) {
+
+     // showMessage('Some data is invalid. Please correct.');
+
+    } else {
+
+      _update();
+
+    }
+
+  }
+
+  void _initCtrls(){
+    productNameController.text = widget.addItem.productName != null ? widget.addItem.productName : "";
+    quantityController.text = widget.addItem.quantity != null ? widget.addItem.quantity : "";
+    descriptionController.text = widget.addItem.description != null ? widget.addItem.description : "";
+    expirationDateController.text = widget.addItem.expirationDate != null ? widget.addItem.expirationDate : "";
+  }
+
 }
