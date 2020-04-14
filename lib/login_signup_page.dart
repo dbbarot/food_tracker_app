@@ -119,7 +119,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
           child: new ListView(
             shrinkWrap: true,
             children: <Widget>[
-              //showLogo(),
+              showLogo(),
               showEmailInput(),
               showPasswordInput(),
               showPrimaryButton(),
@@ -208,5 +208,18 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             _isLoginForm ? 'Create an account' : 'Have an account? Sign in',
             style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300)),
         onPressed: toggleFormMode);
+  }
+  Widget showLogo() {
+    return new Hero(
+      tag: 'hero',
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 0.0),
+        child: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          radius: 48.0,
+          child: Image.asset('assets/images/food_tracker_logo2.png'),
+        ),
+      ),
+    );
   }
 }

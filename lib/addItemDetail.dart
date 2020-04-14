@@ -27,7 +27,7 @@ class _AddItemDetailState extends State<AddItemDetail> {
   TextEditingController productNameController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  MaskedTextController expirationDateController =
+  TextEditingController expirationDateController =
       MaskedTextController(mask: '2000-00-00');
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -157,7 +157,7 @@ class _AddItemDetailState extends State<AddItemDetail> {
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(5.0)),
                         ),
-                        keyboardType: TextInputType.number,
+                        //keyboardType: TextInputType.number,
                         validator: (val) => DateUtils.isValidDate(val)
                             ? null
                             : 'Not a valid future date',
@@ -313,7 +313,7 @@ class _AddItemDetailState extends State<AddItemDetail> {
     showDialog(context: context, builder: (_) => alertDialog);
   }
 
-  Future _chooseDate(BuildContext context, String initialDateString) async {
+  Future<Null> _chooseDate(BuildContext context, String initialDateString) async {
     var now = new DateTime.now();
     var initialDate = DateUtils.convertToDate(initialDateString) ?? now;
     initialDate = (initialDate.year >= now.year && initialDate.isAfter(now)
