@@ -42,10 +42,12 @@ class _AddItemListState extends State<AddItemList> {
 
   @override
   Widget build(BuildContext context) {
+    this.cDate = DateTime.now();
     if (addItemList == null) {
       addItemList = List<AddItem>();
       updateListResult();
     }
+    _checkDate();
     return new Scaffold(
       appBar: new AppBar(
         centerTitle: true,
@@ -172,6 +174,7 @@ class _AddItemListState extends State<AddItemList> {
 
   void _checkDate() {
     const secs = const Duration(seconds: 10);
+    print('hey there');
     new Timer.periodic(secs, (Timer t) {
       DateTime nw = DateTime.now();
       if (cDate.day != nw.day ||

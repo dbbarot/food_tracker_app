@@ -26,6 +26,7 @@ dependencies:
   path_provider: any
   flutter_masked_text: 0.8.0
   flutter_datetime_picker: 1.3.5
+  #flutter_local_notifications: ^0.2.0
   intl: ^0.15.7
 
   # The following adds the Cupertino Icons font to your application.
@@ -44,7 +45,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/food_tracker_logo2.png"
+  image_path: "assets/images/final_food_tracker_logo.png"
 
 flutter:
 
@@ -55,7 +56,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/food_tracker_logo2.png
+    - assets/images/final_food_tracker_logo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
