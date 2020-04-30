@@ -1,15 +1,35 @@
-class AddItem{
-  int _id;
+import 'package:firebase_database/firebase_database.dart';
+
+class AddItem {
+  String key;
   String _productName;
   String _quantity;
   String _description;
   String _expirationDate;
+  int _userId;
 
-  AddItem(this._productName, this._quantity,this._expirationDate, [this._description]);
+  AddItem(this._productName, this._quantity, this._description, this._expirationDate);
 
-  AddItem.withId(this._id, this._productName, this._quantity, this._expirationDate, [this._description]);
+  AddItem.fromSnapshot(DataSnapshot snapshot)
+      : key = snapshot.key,
+        _userId = snapshot.value["userId"],
+        _productName = snapshot.value["productName"],
+        _quantity = snapshot.value["quantity"],
+        _description = snapshot.value["description"],
+        _expirationDate = snapshot.value["expirationDate"];
 
-  int get id => _id;
+  toJson() {
+    return {
+      "userId" : _userId,
+      "productName": _productName,
+      "quantity": _quantity,
+      "description": _description,
+      "expirationDate": _expirationDate
+    };
+  }
+  AddItem.withId(this.key, this._productName, this._quantity, this._expirationDate, [this._description]);
+
+  //String get key => key;
 
   String get productName => _productName;
 
@@ -40,26 +60,25 @@ class AddItem{
   }
 
   // Convert a Note object into a Map object
-  Map<String, dynamic> toMap() {
+  /*Map<String, dynamic> toMap() {
 
     var map = Map<String, dynamic>();
-    if (id != null) {
-      map['id'] = _id;
+    if (key != null) {
+      map['key'] = key;
     }
     map['productName'] = _productName;
     map['quantity'] = _quantity;
     map['description'] = _description;
     map['expirationDate'] = _expirationDate;
 
-    return map;
-  }
+    return map;}
 
   // Extract a Note object from a Map object
-  AddItem.fromMapObject(Map<String, dynamic> map) {
-    this._id = map['id'];
+   AddItem.fromMapObject(Map<String, dynamic> map) {
+    this.key = map['key'];
     this._productName = map['productName'];
     this._quantity = map['quantity'];
     this._description = map['description'];
     this._expirationDate = map['expirationDate'];
-  }
+  }*/
 }

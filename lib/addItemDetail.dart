@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:food_tracker_app/addItem.dart';
-import 'package:food_tracker_app/db_helper.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food_tracker_app/utils.dart';
+import 'package:food_tracker_app/addItemList.dart';
 import 'package:intl/intl.dart';
 
 class AddItemDetail extends StatefulWidget {
@@ -19,10 +21,12 @@ class AddItemDetail extends StatefulWidget {
 }
 
 class _AddItemDetailState extends State<AddItemDetail> {
-  DbHelper helper = DbHelper();
+  //DbHelper helper = DbHelper();
   //DateTime datePicker = DateTime(null);
   String appBarTitle;
   AddItem addItem;
+  String userId;
+  AddItemList addItemList;
   final int daysAhead = 5475; // no of days in future
   TextEditingController productNameController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
@@ -31,14 +35,18 @@ class _AddItemDetailState extends State<AddItemDetail> {
       MaskedTextController(mask: '2000-00-00');
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseDatabase _database = FirebaseDatabase.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  var currentUser = " ";
+  _AddItemDetailState(this.addItem, this.appBarTitle){
+    _auth.currentUser().then((user) {
+      setState(() {
+        currentUser = user.uid;
+      });
+        print(currentUser);
+    }).catchError((e){
 
-
-  _AddItemDetailState(this.addItem, this.appBarTitle);
-
-  @override
-  void initState() {
-    super.initState();
-    _initCtrls();
+    });
   }
 
   @override
@@ -51,6 +59,7 @@ class _AddItemDetailState extends State<AddItemDetail> {
     expirationDateController.text = addItem.expirationDate;
 
     return WillPopScope(
+      // ignore: missing_return
       onWillPop: () {
         // Write some code to control things, when user press Back navigation button in device navigationBar
         goToLastScreen();
@@ -62,6 +71,22 @@ class _AddItemDetailState extends State<AddItemDetail> {
             appBarTitle,
             style: TextStyle(color: Colors.black),
           ),
+          actions: <Widget>[
+            new FlatButton(
+                child: new Text('Save',
+                    style: new TextStyle(fontSize: 17.0, color: Colors.black)),
+                onPressed: (){
+                  goToLastScreen();
+                  /*_database
+                      .reference()
+                      .child(currentUser + '/addItem/')
+                      .child(addItem.key)
+                      .set(addItem.toJson());*/
+                  updateAddItem(addItem);
+                  _showAlertDialog('Status', addItem.productName + ' item Saved Successfully');
+                }
+            )
+          ],
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
               color: Colors.black,
@@ -87,17 +112,20 @@ class _AddItemDetailState extends State<AddItemDetail> {
                         RegExp("[a-zA-Z0-9 ]"))
                   ],
                   controller: productNameController,
-                  style: textStyle,
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                   validator: (val) => Val.ValidateTitle(val),
-                  onSaved: (value) {
+                  /*onSaved: (value) {
                     debugPrint('Something changed in Title Text Field');
-                    updateProductName();
-                  },
+                    //updateProductName();
+                  },*/
                   decoration: InputDecoration(
                     icon: const Icon(Icons.fastfood),
                       hintText: 'Enter the product name',
+                      hintStyle: TextStyle(color:  Colors.green),
                       labelText: 'Product',
-                      labelStyle: textStyle,
+                      labelStyle: TextStyle(color : Colors.green),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0))),
                 ),
@@ -107,15 +135,16 @@ class _AddItemDetailState extends State<AddItemDetail> {
                   controller: quantityController,
                   style: textStyle,
                   validator: (val) => Val.ValidateTitle(val),
-                  onSaved: (value) {
+                  /*onSaved: (value) {
                     debugPrint('Something changed in Title Text Field');
                     updateQuantity();
-                  },
+                  },*/
                   decoration: InputDecoration(
                       icon: const Icon(Icons.confirmation_number),
                       hintText: 'Enter the Quantity',
+                      hintStyle: TextStyle(color:  Colors.green),
                       labelText: 'Quantity',
-                      labelStyle: textStyle,
+                      labelStyle: TextStyle(color : Colors.green),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0))),
                 ),
@@ -125,15 +154,16 @@ class _AddItemDetailState extends State<AddItemDetail> {
                   controller: descriptionController,
                   style: textStyle,
                   validator: (val) => Val.ValidateTitle(val),
-                  onSaved: (value) {
+                  /*onSaved: (value) {
                     debugPrint('Something changed in Title Text Field');
                     updateDescription();
-                  },
+                  },*/
                   decoration: InputDecoration(
                       icon: const Icon(Icons.description),
                       hintText: 'Enter description ',
+                      hintStyle: TextStyle(color:  Colors.green),
                       labelText: 'Description',
-                      labelStyle: textStyle,
+                      labelStyle: TextStyle(color : Colors.green),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0))),
                 ),
@@ -145,15 +175,16 @@ class _AddItemDetailState extends State<AddItemDetail> {
                       child: TextFormField(
                         controller: expirationDateController,
                         style: textStyle,
-                        onSaved: (value) {
+                        /*onSaved: (value) {
                           debugPrint('Something changed in Title Text Field');
                           updateExpirationDate();
-                        },
+                        },*/
                         decoration: InputDecoration(
                           icon: const Icon(Icons.calendar_today),
                           hintText: 'Enter Expiration Date',
+                          hintStyle: TextStyle(color:  Colors.green),
                           labelText: 'Expired Date',
-                          labelStyle: textStyle,
+                          labelStyle: TextStyle(color : Colors.green),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(5.0)),
                         ),
@@ -172,10 +203,6 @@ class _AddItemDetailState extends State<AddItemDetail> {
                     )
                   ],
                 ),
-                Row(children: <Widget>[
-                  Expanded(child: Text(' ')),
-                ]),
-                // Fifth Field
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -196,9 +223,16 @@ class _AddItemDetailState extends State<AddItemDetail> {
                             debugPrint('Update Button Clicked');
                             if(this._formKey.currentState.validate()) {
                               this._formKey.currentState.save();
-                              _update();
+                             // _update();
+                              /*Navigator.pop(context, true);*/
+                              addNewItem(productNameController.text.toString());
+                              _showAlertDialog('Status', productNameController.text.toString() + '  added successfully');
+
+                              //goToLastScreen();
                             }else{
+                              this._formKey.currentState.save();
                               _showAlertDialog('Status', 'Some data is invalid. Please correct.');
+                              //goToLastScreen();
                             }
                           });
                         },
@@ -224,7 +258,7 @@ class _AddItemDetailState extends State<AddItemDetail> {
                             debugPrint('Delete Button Clicked');
                             if(this._formKey.currentState.validate()) {
                               this._formKey.currentState.save();
-                              _delete();
+                              //_delete();
                             }else{
                               _showAlertDialog('Status', 'Some data is invalid. Please correct.');
                             }
@@ -246,62 +280,28 @@ class _AddItemDetailState extends State<AddItemDetail> {
     Navigator.pop(context, true);
   }
 
-  void updateProductName() {
-    addItem.productName = productNameController.text;
-  }
 
-  void updateQuantity() {
-    addItem.quantity = quantityController.text;
-  }
 
-  void updateDescription() {
-    addItem.description = descriptionController.text;
-  }
-
-  void updateExpirationDate() {
-    addItem.expirationDate = expirationDateController.text;
-  }
-
-  void _update() async {
+  addNewItem(String addItem) {
     goToLastScreen();
-
-    int result;
-    if (addItem.id != null) {
-      // Case 1: Update operation
-      result = await helper.updateAddItem(addItem);
-    } else {
-      // Case 2: Insert Operation
-      print('This is');
-      print(addItem.id);
-      result = await helper.insertAddItem(addItem);
-      print(result);
-    }
-
-    if (result != 0) {
-      // Success
-      _showAlertDialog('Status', 'addItem updated Successfully');
-    } else {
-      // Failure
-      _showAlertDialog('Status', 'Problem updating addItem');
+    //addItem
+    if (addItem.length > 0) {
+      AddItem addItem = new AddItem(productNameController.text.toString(), quantityController.text.toString(),
+                                      descriptionController.text.toString(), expirationDateController.text.toString());
+      print(currentUser);
+      _database.reference().child(currentUser +  '/addItem/').push().set(addItem.toJson());
     }
   }
 
-  void _delete() async {
-    goToLastScreen();
-
-    // Case 1: If user is trying to delete the NEW addItem i.e. he has come to
-    // the detail page by pressing the FAB of addItemList page.
-    if (addItem.id == null) {
-      _showAlertDialog('Status', 'No addItem was deleted');
-      return;
-    }
-
-    // Case 2: User is trying to delete the old addItem that already has a valid ID.
-    int result = await helper.deleteAddItem(addItem.id);
-    if (result != 0) {
-      _showAlertDialog('Status', 'addItem Deleted Successfully');
-    } else {
-      _showAlertDialog('Status', 'Error Occured while Deleting addItem');
+  updateAddItem(AddItem addItem) {
+    //Toggle completed
+    /*todo.completed = !todo.completed;*/
+    if (addItem != null) {
+      _database
+          .reference()
+          .child(currentUser + '/addItem/')
+          .child(addItem.key)
+          .set(addItem.toJson());
     }
   }
 
@@ -342,7 +342,7 @@ class _AddItemDetailState extends State<AddItemDetail> {
 
     } else {
 
-      _update();
+     // _update();
 
     }
 

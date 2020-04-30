@@ -91,7 +91,12 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
     return new Scaffold(
         appBar: new AppBar(
           centerTitle: true,
-          title: new Text('Food Tracker'),
+          title: new Text(
+            'Food Tracker',
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
         ),
         body: Stack(
           children: <Widget>[
@@ -154,8 +159,12 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         maxLines: 1,
         keyboardType: TextInputType.emailAddress,
         autofocus: false,
+        style: TextStyle(
+          color: Colors.white,
+        ),
         decoration: new InputDecoration(
             hintText: 'Email',
+            hintStyle: TextStyle(color: Colors.white),
             icon: new Icon(
               Icons.mail,
               color: Colors.orange,
@@ -173,8 +182,12 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         maxLines: 1,
         obscureText: true,
         autofocus: false,
+        style: TextStyle(
+          color: Colors.white,
+        ),
         decoration: new InputDecoration(
             hintText: 'Password',
+            hintStyle: TextStyle(color: Colors.white),
             icon: new Icon(
               Icons.lock,
               color: Colors.orange,
@@ -206,9 +219,10 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
     return new FlatButton(
         child: new Text(
             _isLoginForm ? 'Create an account' : 'Have an account? Sign in',
-            style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300)),
+            style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300, color: Colors.white)),
         onPressed: toggleFormMode);
   }
+
   Widget showLogo() {
     return new Hero(
       tag: 'hero',
@@ -216,7 +230,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         padding: EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 0.0),
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
-          radius: 100,
+          radius: 150,
           child: Image.asset('assets/images/final_food_tracker_logo.png'),
         ),
       ),

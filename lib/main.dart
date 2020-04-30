@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
         theme: new ThemeData(
           backgroundColor: Colors.black,
           primarySwatch: Colors.green,
+            scaffoldBackgroundColor: Colors.white10,
         ),
         home: new RootPage(auth: new Auth()
         ));
